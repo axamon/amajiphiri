@@ -1,17 +1,23 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"log"
 	"net/http"
 )
 
+var port = flag.String("port", ":80", "Port to use")
+
 func main() {
 
-	http.HandleFunc("/", HelloServer)
-	http.ListenAndServe(":80", nil)
-}
+	flag.Parse()
 
-// HelloServer writes static response.
-func HelloServer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Amaji Phiri rocks!")
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fs)
+
+	log.Printf("Listening on %s ...", *port)
+	err := http.ListenAndServe(*port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
